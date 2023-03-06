@@ -1,39 +1,71 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.Utilities;
 
 public class MenuControl : MonoBehaviour
 {
-    private bool menu = false;
+    private numButtons = 20;
+    
+    public GameObject menu;
+    public GridObjectCollection gc;
+    public ScrollingObjectCollection so;
+    private EMGReader emgReader;
+    private string control = "";
+    private double debounceTime;
+    private float speed;
+    
 
     void Start()
     {
-        
+        emgReader = FindObjectOfType<EMGReader>();
+        emgReader.StartReadingData();
+        menu.SetActive(false);
+        debounceTime = Time.time;
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.O)) {
-            OpenMenu();
-        } else if (Input.GetKeyDown(KeyCode.C)) {
-            CloseMenu();
+        control = emgReader.ReadControlFromArmband();
+        speed = emgReader.ReadSpeedFromArmband();
+        if (control == "0" && Time.time - debounceTime > 1f) {
+            // Hand Close - Open/Close Menu
+            if(menu.activeSelf) {
+                CloseMenu();
+                debounceTime = Time.time;
+            } else {
+                OpenMenu();
+                debounceTime = Time.time;
+            }
+        } else if (control == "3") {
+            // Extension - Up Scroll
+            DownScroll(speed);
+        } else if (control == "4") {
+            // Flexion - Up Scroll
+            UpScroll(speed);
+        } else if(control == "1") {
+            
         }
     }
 
-    public void OpenMenu() {
-        // Check that menu is closed
-        if (!menu) {
-            Debug.Log("Opening Menu");
-            menu = !menu;
-        }
+    void DownScroll(float speed) {
+        so.MoveByTiers(1);
+        gc.UpdateCollection();
     }
 
-    public void CloseMenu() {
-        // Check if menu is already open
-        if (menu) {
-            Debug.Log("Closing Menu");
-            menu = !menu;
-        }
+    void UpScroll(float speed) {
+        so.MoveByTiers(-1);
+        gc.UpdateCollection();
+    }
+
+    void OpenMenu() {
+        Debug.Log("Opening Menu");
+        menu.SetActive(true);
+    }
+
+    void CloseMenu() {
+        Debug.Log("Closing Menu");
+        menu.SetActive(false);
     }
 }
