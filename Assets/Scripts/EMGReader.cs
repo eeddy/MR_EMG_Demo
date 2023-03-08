@@ -1,32 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-using UnityEngine;
-using System.Collections;
 using System;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.IO;
 
 public class EMGReader : MonoBehaviour
 {
     public string IP = "127.0.0.1";
     public int port = 12346;
-
     Thread readThread;
     UdpClient client;
-    private String control = "";
+    public string control = "";
     private float speed = 0.0f;
     
-
-    public void StartReadingData()
+    async void Start() 
     {
-        // create thread for reading messages
+#if UNITY_EDITOR
         readThread = new Thread(new ThreadStart(ReceiveData));
         readThread.IsBackground = true;
         readThread.Start();
+#endif
     }
 
     // Unity Application Quit Function
@@ -59,7 +56,7 @@ public class EMGReader : MonoBehaviour
             string text = Encoding.UTF8.GetString(buff);
             string[] parts = text.Split(' ');
             control = parts[0];
-            speed = float.Parse(parts[1]);
+            // speed = float.Parse(parts[1]);
         }
     }
 

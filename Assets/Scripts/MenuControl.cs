@@ -8,9 +8,10 @@ using TMPro;
 
 public class MenuControl : MonoBehaviour
 {
-    private int numButtons = 100;
+    private int numButtons = 50;
 
     public GameObject button, grid, scroll;
+    public TextMeshPro text;
     private GridObjectCollection gc;
     private ScrollingObjectCollection so;
     private EMGReader emgReader;
@@ -18,6 +19,7 @@ public class MenuControl : MonoBehaviour
     private double debounceTime;
     private float speed;
     private int count = 0;
+    private Vector3 ogMenuPos;
     
 
     void Awake()
@@ -35,9 +37,9 @@ public class MenuControl : MonoBehaviour
     }
 
     void Start() {
-        scroll.SetActive(false);
+        // scroll.SetActive(false);
+        ogMenuPos = scroll.transform.position;
         emgReader = FindObjectOfType<EMGReader>();
-        emgReader.StartReadingData();
         debounceTime = Time.time;
     }
 
@@ -49,9 +51,14 @@ public class MenuControl : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Vector3 camPos = Camera.main.gameObject.transform.position;
+        // scroll.transform.position = camPos + ogMenuPos;
         UpdateMenu();
         control = emgReader.ReadControlFromArmband();
         speed = Mathf.Pow(emgReader.ReadSpeedFromArmband(), 3f);
+        if (control != "") {
+            text.text = control;
+        }
         if (speed < 0) {
             speed = 0.01f;
         }
@@ -76,12 +83,12 @@ public class MenuControl : MonoBehaviour
     }
 
     void DownScroll(float speed) {
-        so.MoveByTiers(Mathf.RoundToInt(10 * speed));
+        so.MoveByTiers(Mathf.RoundToInt(5 * speed));
         gc.UpdateCollection();
     }
 
     void UpScroll(float speed) {
-        so.MoveByTiers(Mathf.RoundToInt(-10 * speed));
+        so.MoveByTiers(Mathf.RoundToInt(-5 * speed));
         gc.UpdateCollection();
     }
 
