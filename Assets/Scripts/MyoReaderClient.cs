@@ -25,11 +25,11 @@ public class MyoReaderClient : MonoBehaviour {
 
     public TextMeshPro label;
 
-    private int port = 12346;
+    private int port = 8099;
     private string host = "127.0.0.1";
     private string ipAddress = "192.168.2.51";
-    private string portUWP = "12345";
-    private string control = "Starting!";
+    private string portUWP = "8099";
+    public string control = "Starting!";
     private StreamReader reader;
     private bool connected = false;
 
@@ -103,14 +103,14 @@ public class MyoReaderClient : MonoBehaviour {
             byte[] bytes = new byte[socketClient.ReceiveBufferSize];
             NetworkStream stream = socketClient.GetStream();
             data = stream.Read(bytes, 0, socketClient.ReceiveBufferSize);
-            control = Encoding.UTF8.GetString(bytes, 0, data);
+            control = Encoding.UTF8.GetString(bytes, 0, data).Trim();
         }
     }
 #else
     private void ListenForDataUWP()
     {
         try {
-            control = reader.ReadLine();
+            control = reader.ReadLine().Trim();
         } catch (Exception e) {
             //Do nothing
         }

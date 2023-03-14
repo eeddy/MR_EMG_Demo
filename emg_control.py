@@ -44,19 +44,19 @@ class Menu:
         self.window.destroy()
         # Launch training ui
         training_ui = ScreenGuidedTraining()
-        training_ui.download_gestures([1,2,4,5,27], "classes/")
-        training_ui.launch_training(self.odh, 4, 2, "classes/", "data/", 1)
+        training_ui.download_gestures([1,2,3,4,5,27], "classes/")
+        training_ui.launch_training(self.odh, 3, 3, "classes/", "data/", 1)
         self.initialize_ui()
 
     def set_up_classifier(self):
-        WINDOW_SIZE = 100
-        WINDOW_INCREMENT = 50
+        WINDOW_SIZE = 75
+        WINDOW_INCREMENT = 75
 
         # Step 1: Parse offline training data
         dataset_folder = 'data/'
         classes_values = ["0","1","2","3","4","5","6"]
         classes_regex = make_regex(left_bound = "_C_", right_bound=".csv", values = classes_values)
-        reps_values = ["0", "1", "2", "3"]
+        reps_values = ["0", "1", "2"]
         reps_regex = make_regex(left_bound = "R_", right_bound="_C_", values = reps_values)
         dic = {
             "reps": reps_values,
@@ -82,11 +82,12 @@ class Menu:
         # Step 4: Create the EMG Classifier
         o_classifier = EMGClassifier()
         o_classifier.fit(model="LDA", feature_dictionary=data_set)
-        o_classifier.add_velocity(train_windows=train_windows, train_labels=train_metadata['classes'])
         o_classifier.add_rejection(0.95)
 
         # Step 5: Create online EMG classifier and start classifying.
-        self.classifier = OnlineEMGClassifier(o_classifier, WINDOW_SIZE, WINDOW_INCREMENT, self.odh, feature_list)
+        IP = '192.168.2.51'
+        # IP = '127.0.0.1'
+        self.classifier = OnlineEMGClassifier(o_classifier, WINDOW_SIZE, WINDOW_INCREMENT, self.odh, feature_list, ip=IP, port=8099, tcp=True, std_out=True)
         self.classifier.run(block=True)
 
     def on_closing(self):
